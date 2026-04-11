@@ -40,6 +40,8 @@ with st.expander("📖 지원 모듈 및 추천 질문 보기", expanded=False):
     """)
 st.divider() # 시각적으로 깔끔하게 선 하나 그어주기
 # ----------------------------------------------------
+
+# @st.cache_resource: 리소스를 메모리에 상주시켜 중복 실행(재로드)을 막는 성능 최적화 데코레이터
 @st.cache_resource
 def build_knowledge_base():
     # 로컬 임베딩 모델 정의 (함수 최상단으로 이동)
@@ -80,19 +82,13 @@ template = """이젬코 CEP 솔루션 최고 전문가입니다.
 """
 prompt_tmpl = ChatPromptTemplate.from_template(template)
 
-# LLM 설정 (HTTPS 경로 명시)
-# llm = ChatGoogleGenerativeAI(
-#     model="gemini-3-flash-preview",  # <- 여기에 -preview 가 반드시 들어가야 합니다!
-#     google_api_key=GOOGLE_API_KEY,
-#     temperature=0
-# )
-
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash", # 또는 스튜디오에서 확인하셨던 안정된 버전
+    model="gemini-2.5-flash", 
     google_api_key=GOOGLE_API_KEY,
     temperature=0
 )
 
+# 리트리버(Retriever): 질문과 가장 유사도가 높은 문서 조각 20개를 찾아오는 검색기 역할
 retriever = vector_db.as_retriever(search_kwargs={"k": 20})
 
 # RAG 파이프라인 구성
